@@ -1,7 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\StampController;
+use App\Http\Controllers\RestController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -24,8 +25,13 @@ Route::get('/stamp/home', function () {
 Route::post('/stamp/start', [StampController::class, 'startWork']);
 Route::post('/stamp/end', [StampController::class, 'endWork']);
 
+Route::post('/rest/start', [RestController::class, 'startRest']);
+Route::post('/rest/end', [RestController::class, 'endRest']);
+
+Route::get('/stamp/home', [StampController::class, 'home'])->middleware(['auth'])->name('home');
+
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    return view('/stamp');
 })->middleware(['auth'])->name('dashboard');
 
 require __DIR__.'/auth.php';

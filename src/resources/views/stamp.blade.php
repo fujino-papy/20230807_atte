@@ -18,35 +18,61 @@
                     <a href="">日付一覧</a>
                 </li>
                 <li class="header-li">
-                    <a href="">ログアウト</a>
+                    <div class="mt-3 space-y-1">
+                <!-- Authentication -->
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <x-responsive-nav-link :href="route('logout')"
+                            onclick="event.preventDefault();
+                                        this.closest('form').submit();">
+                        {{ __('ログアウト') }}
+                    </x-responsive-nav-link>
+                </form>
                 </li>
             </ul>
 
-            <div class="header-nav">
-            @if (Route::has('login'))
-                <div class="header-li">
-                    @auth
-                        <a href="{{ url('/dashboard') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Dashboard</a>
-                    @else
-                        <a href="{{ route('login') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Log in</a>
 
-                        @if (Route::has('register'))
-                            <a href="{{ route('register') }}" class="ml-4 text-sm text-gray-700 dark:text-gray-500 underline">Register</a>
-                        @endif
-                    @endauth
-                </div>
-            @endif
         </header>
         <main>
                 <h1 class="username">{{ Auth::user()->name }}さんお疲れ様です！</h1>
             </div>
-            <form class="stamp">
-                @csrf
-                <button class="start" action="/stamp/start" method="post" type="submit">勤務開始</button>
-                <button class="end" action="/stamp/end" method="post"type="submit">勤務終了</button>
-            <br>
-                <button class="rest-start" type="submit">休憩開始</button>
-                <button class="rest-end" type="submit">休憩終了</button>
+            <div class="form">
+                <form class="stamp" method="post" action="/stamp/start">
+                    @csrf
+                    @if (Session::has('user_added_entry_' . Auth::id()))
+                        <button class="btn btn-primary entry-btn-disabled" type="submit" disabled>勤務開始</button>
+                    @else
+                        <button class="btn btn-primary entry-btn" type="submit" >勤務開始</button>
+                    @endif
+                </form>
+
+                <form class="stamp" method="post" action="/stamp/end">
+                    @csrf
+                    @if ($hasEndWork ?? '')
+                        <button class="end-work" type="submit" disabled>勤務終了</button>
+                    @else
+                        <button class="end-work" type="submit">勤務終了</button>
+                    @endif
+                </form>
+
+                <form class="stamp" method="post" action="/rest/start">
+                    @csrf
+                    @if ($hasStartedRest ?? '')
+                        <button class="rest-start" type="submit" disabled>休憩開始</button>
+                    @else
+                        <button class="rest-start" type="submit">休憩開始</button>
+                    @endif
+                </form>
+
+                <form class="stamp" method="post" action="/rest/end">
+                    @csrf
+                    @if ($hasEndedRest ?? '')
+                        <button class="rest-end" type="submit" disabled>休憩終了</button>
+                    @else
+                        <button class="rest-end" type="submit">休憩終了</button>
+                    @endif
+            </form>
+            </div>
         </main>
         <footer>
         <p class="footer-logo">Atte,inc.</p>
