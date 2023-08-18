@@ -14,13 +14,15 @@ class RestController extends Controller
     public function home()
     {
         $user = Auth::user();
+        $attendance = $user->attendance;
+
         // 休憩開始したかどうかをチェック
-        $hasStartedRest = Rest::where('attendance_id', $user->attendance->id)
+        $hasStartedRest = Rest::where('attendance_id', $attendance->id)
             ->where('end_rest', null)
             ->exists();
 
         // 休憩終了したかどうかをチェック
-        $hasEndedRest = Rest::where('attendance_id', $user->attendance->id)
+        $hasEndedRest = Rest::where('attendance_id', $attendance->id)
             ->whereNotNull('end_rest')
             ->exists();
 
@@ -37,7 +39,7 @@ class RestController extends Controller
 
         $this->markUserRestEntryAdded($rest, 'start_rest');
 
-        return view('stamp');
+        return redirect()->route('rest.home')->with('success', '休憩を開始しました。');
     }
 
     private function markUserRestEntryAdded($rest, $action)
@@ -47,7 +49,6 @@ class RestController extends Controller
 
     public function endRest(Request $request)
     {
-        $user = Auth::user();
         $end_rest = Rest::whereNull('end_rest')->get();
 
         foreach ($end_rest as $end_rest)
@@ -56,6 +57,6 @@ class RestController extends Controller
 
         $this->markUserRestEntryAdded($end_rest, 'end_rest');
 
-        return view('stamp');
+        return redirect()->route('rest.home')->with('success', '休憩を終了しました。');
     }
 }

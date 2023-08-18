@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Attendance;
+use App\Models\Rest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
@@ -22,8 +23,19 @@ class StampController extends Controller
             ->whereNotNull('end_work')
             ->exists();
 
-        return view('stamp', compact('hasAddedEntry', 'hasEndWork', ));
+        // 休憩開始したかどうかをチェック
+        $hasStartedRest = Rest::where('attendance_id', $user->attendance->id)
+            ->where('end_rest', null)
+            ->exists();
+
+        // 休憩終了したかどうかをチェック
+        $hasEndedRest = Rest::where('attendance_id', $user->attendance->id)
+            ->whereNotNull('end_rest')
+            ->exists();
+
+        return view('stamp', compact('hasAddedEntry', 'hasEndWork', 'hasStartedRest', 'hasEndedRest'));
     }
+
 
     public function startWork(Request $request)
     {
@@ -42,7 +54,7 @@ class StampController extends Controller
 
         $this->markUserEntryAdded($user);
 
-        return view('stamp');
+        return redirect()->route('stamp.home');
     }
 
     private function hasUserAddedEntryToday($user)
@@ -64,7 +76,7 @@ class StampController extends Controller
             $end_work->end_work = now();
         $end_work->save();
 
-        return view('stamp');
+        return redirect()->route('stamp.home');
     }
 }
 

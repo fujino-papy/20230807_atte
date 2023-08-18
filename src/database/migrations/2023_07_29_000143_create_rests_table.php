@@ -17,9 +17,9 @@ class CreateRestsTable extends Migration
             $table->id('id')->unsignedBigInt();
             $table->time('start_rest');
             $table->time('end_rest')->nullable();
+            $table->foreignId('attendance_id')->constrained()->cascadeOnDelete();
             $table->timestamp('created_at');
             $table->timestamp('updated_at');
-            $table->foreignId('attendance_id')->constrained()->cascadeOnDelete();
         });
     }
 
