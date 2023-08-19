@@ -39,10 +39,14 @@
             <div class="form">
                 <form class="stamp" method="post" action="/stamp/start">
                     @csrf
+                    @if ($hasEndWork ?? '')
+                        <button class="btn btn-primary entry-btn-disabled" type="submit" disabled>勤務開始</button>
+                    @else
                     @if (Session::has('user_added_entry_' . Auth::id()))
                         <button class="btn btn-primary entry-btn-disabled" type="submit" disabled>勤務開始</button>
                     @else
                         <button class="btn btn-primary entry-btn" type="submit" >勤務開始</button>
+                    @endif
                     @endif
                 </form>
 
@@ -56,21 +60,29 @@
                 </form>
 
                 <form class="stamp" method="post" action="/rest/start">
-                    @csrf
-                    @if ($hasStartedRest ?? '')
-                        <button class="rest-start" type="submit" disabled>休憩開始</button>
-                    @else
-                        <button class="rest-start" type="submit">休憩開始</button>
-                    @endif
+                @csrf
+                @if ($hasEndWork ?? '')
+                    <button class="rest-start" type="submit" disabled>休憩開始</button>
+                @else
+                @if ($hasStartedRest ?? '')
+                    <button class="rest-start" type="submit" disabled>休憩開始</button>
+                @else
+                    <button class="rest-start" type="submit">休憩開始</button>
+                @endif
+                @endif
                 </form>
 
                 <form class="stamp" method="post" action="/rest/end">
-                    @csrf
-                    @if ($hasEndedRest ?? '')
-                        <button class="rest-end" type="submit" disabled>休憩終了</button>
-                    @else
-                        <button class="rest-end" type="submit">休憩終了</button>
-                    @endif
+                @csrf
+                @if ($hasEndWork ?? '')
+                    <button class="rest-end" type="submit" disabled>休憩終了</button>
+                @else
+                @if ($hasEndedRest ?? '')
+                    <button class="rest-end" type="submit" disabled>休憩終了</button>
+                @else
+                    <button class="rest-end" type="submit">休憩終了</button>
+                @endif
+                @endif
             </form>
             </div>
         </main>

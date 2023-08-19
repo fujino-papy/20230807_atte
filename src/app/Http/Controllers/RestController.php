@@ -30,7 +30,7 @@ class RestController extends Controller
     }
     public function startRest(Request $request)
     {
-
+        
         $attendance = Auth::user()->attendance;;
         $rest = new Rest();
         $rest->start_rest = now();

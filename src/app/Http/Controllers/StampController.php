@@ -16,24 +16,17 @@ class StampController extends Controller
 
         // 今日のエントリーを追加したかどうかをチェック
         $hasAddedEntry = $this->hasUserAddedEntryToday($user);
-
+        
         // 勤務終了したかどうかをチェック
         $hasEndWork = Attendance::where('user_id', $user->id)
             ->where('date', now()->toDateString())
             ->whereNotNull('end_work')
             ->exists();
 
-        // 休憩開始したかどうかをチェック
-        $hasStartedRest = Rest::where('attendance_id', $user->attendance->id)
-            ->where('end_rest', null)
-            ->exists();
+        // 勤務終了したら休憩ボタンを無効にする
+        $disableRestButtons = $hasEndWork;
 
-        // 休憩終了したかどうかをチェック
-        $hasEndedRest = Rest::where('attendance_id', $user->attendance->id)
-            ->whereNotNull('end_rest')
-            ->exists();
-
-        return view('stamp', compact('hasAddedEntry', 'hasEndWork', 'hasStartedRest', 'hasEndedRest'));
+        return view('stamp', compact('hasAddedEntry', 'hasEndWork', ));
     }
 
 
