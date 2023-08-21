@@ -16,7 +16,7 @@ class StampController extends Controller
 
         // 今日のエントリーを追加したかどうかをチェック
         $hasAddedEntry = $this->hasUserAddedEntryToday($user);
-        
+
         // 勤務終了したかどうかをチェック
         $hasEndWork = Attendance::where('user_id', $user->id)
             ->where('date', now()->toDateString())

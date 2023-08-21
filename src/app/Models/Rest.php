@@ -27,4 +27,13 @@ class Rest extends Model
     {
         return $this->belongsTo(Attendance::class);
     }
+    public function start_rest()
+    {
+        return $this->hasOne(Rest::class);
+    }
+
+    public function end_rest()
+    {
+        return $this->hasMany(Rest::class);
+    }
 }
