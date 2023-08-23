@@ -63,19 +63,19 @@
 
                 <form class="stamp" method="post" action="/rest/start">
                 @csrf
-                @if ($startButtonDisabled ?? '')
-                    <button class="rest-start" type="submit" disabled>休憩開始</button>
+                @if ($rest ?? '')
+                    <button class="rest-start" type="submit" >休憩開始</button>
                 @else
-                    <button class="rest-start" type="submit">休憩開始</button>
+                    <button class="rest-start" type="submit"disabled>休憩開始</button>
                 @endif
                 </form>
 
                 <form class="stamp" method="post" action="/rest/end">
                 @csrf
-                @if ($endButtonDisabled ?? '')
-                    <button class="rest-end" type="submit"  disabled>休憩終了</button>
+                @if ($rest ?? '')
+                    <button class="rest-end" type="submit"  >休憩終了</button>
                 @else
-                    <button class="rest-end" type="submit" >休憩終了</button>
+                    <button class="rest-end" type="submit" disabled>休憩終了</button>
                 @endif
             </form>
             </div>
