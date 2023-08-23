@@ -12,10 +12,16 @@
             <p class="title">Atte</p>
             <ul class="header-nav">
                 <li class="header-li">
-                    <a href="">ホーム</a>
+                    <form method="POST" action="/stamp/home" >
+                        @csrf
+                        <a href="/stamp/home">ホーム</a>
+                    </form>
                 </li>
                 <li class="header-li">
-                    <a href="">日付一覧</a>
+                    <form method="POST" action="/stamp/list" >
+                        @csrf
+                        <a href="/stamp/list">日付一覧</a>
+                    </form>
                 </li>
                 <li class="header-li">
                     <div class="mt-3 space-y-1">
@@ -39,49 +45,37 @@
             <div class="form">
                 <form class="stamp" method="post" action="/stamp/start">
                     @csrf
-                    @if ($hasEndWork ?? '')
-                        <button class="btn btn-primary entry-btn-disabled" type="submit" disabled>勤務開始</button>
+                    @if ($attendance ?? '' === null)
+                    <button class="btn btn-primary entry-btn" type="submit" >勤務開始</button>
                     @else
-                    @if (Session::has('user_added_entry_' . Auth::id()))
-                        <button class="btn btn-primary entry-btn-disabled" type="submit" disabled>勤務開始</button>
-                    @else
-                        <button class="btn btn-primary entry-btn" type="submit" >勤務開始</button>
-                    @endif
+                    <button class="btn btn-primary entry-btn-disabled" type="submit" disabled>勤務開始</button>
                     @endif
                 </form>
 
                 <form class="stamp" method="post" action="/stamp/end">
                     @csrf
-                    @if ($hasEndWork ?? '')
-                        <button class="end-work" type="submit" disabled>勤務終了</button>
+                    @if ($attendance ?? '' && is_null($attendance ?? ''->end_work))
+                        <button class="end-work" type="submit" >勤務終了</button>
                     @else
-                        <button class="end-work" type="submit">勤務終了</button>
+                        <button class="end-work" type="submit" disabled>勤務終了</button>
                     @endif
                 </form>
 
                 <form class="stamp" method="post" action="/rest/start">
                 @csrf
-                @if ($hasEndWork ?? '')
-                    <button class="rest-start" type="submit" disabled>休憩開始</button>
-                @else
-                @if ($hasStartedRest ?? '')
+                @if ($startButtonDisabled ?? '')
                     <button class="rest-start" type="submit" disabled>休憩開始</button>
                 @else
                     <button class="rest-start" type="submit">休憩開始</button>
-                @endif
                 @endif
                 </form>
 
                 <form class="stamp" method="post" action="/rest/end">
                 @csrf
-                @if ($hasEndWork ?? '')
-                    <button class="rest-end" type="submit" disabled>休憩終了</button>
+                @if ($endButtonDisabled ?? '')
+                    <button class="rest-end" type="submit"  disabled>休憩終了</button>
                 @else
-                @if ($hasEndedRest ?? '')
-                    <button class="rest-end" type="submit" disabled>休憩終了</button>
-                @else
-                    <button class="rest-end" type="submit">休憩終了</button>
-                @endif
+                    <button class="rest-end" type="submit" >休憩終了</button>
                 @endif
             </form>
             </div>

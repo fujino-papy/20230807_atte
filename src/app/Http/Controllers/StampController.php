@@ -15,8 +15,18 @@ class StampController extends Controller
         $user = Auth::user();
 
         // 今日のエントリーを追加したかどうかをチェック
-        $hasAddedEntry = $this->hasUserAddedEntryToday($user);
+        $attendance = Attendance::where('user_id', $user->id)
+            ->where('date', now()->toDateString())
+            ->whereNotNull('start_work')
+            ->first();
 
+        if ($attendance && is_null($attendance->end_work)) {
+            $startWorkData = $attendance->start_work;
+            $endWorkData = null; // 'end_work' カラムにデータがない場合は明示的に null を設定
+        } else {
+            $startWorkData = null;
+            $endWorkData = null;
+        }
         // 勤務終了したかどうかをチェック
         $hasEndWork = Attendance::where('user_id', $user->id)
             ->where('date', now()->toDateString())
@@ -26,7 +36,7 @@ class StampController extends Controller
         // 勤務終了したら休憩ボタンを無効にする
         $disableRestButtons = $hasEndWork;
 
-        return view('stamp', compact('hasAddedEntry', 'hasEndWork', ));
+        return view('stamp', compact('attendance' ));
     }
 
 
@@ -70,6 +80,11 @@ class StampController extends Controller
         $end_work->save();
 
         return redirect()->route('stamp.home');
+    }
+
+    public function list()
+    {
+        return view('list');
     }
 }
 

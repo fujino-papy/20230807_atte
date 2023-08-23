@@ -7,6 +7,7 @@ use App\Models\Attendance;
 use App\Models\Rest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use Carbon\Carbon;
 
 class RestController extends Controller
 {
@@ -14,24 +15,31 @@ class RestController extends Controller
     public function home()
     {
         $user = Auth::user();
-        $attendance = $user->attendance;
+        $today = Carbon::now()->format('Y-m-d');
 
-        // 休憩開始したかどうかをチェック
-        $hasStartedRest = Rest::where('attendance_id', $attendance->id)
-            ->where('end_rest', null)
-            ->exists();
+        $attendance = $user->attendance()->whereDate('created_at', $today)->first();
 
-        // 休憩終了したかどうかをチェック
-        $hasEndedRest = Rest::where('attendance_id', $attendance->id)
-            ->whereNotNull('end_rest')
-            ->exists();
+        $rest = [
+            'startActive' => false,
+            'endActive' => false,
+        ];
 
-        return view('stamp', compact('hasStartedRest', 'hasEndedRest'));
+        if ($attendance) {
+            if ($attendance->start_rest === null && $attendance->end_rest === null) {
+                $rest['startActive'] = true;
+            } elseif ($attendance->start_rest !== null && $attendance->end_rest === null) {
+                $rest['endActive'] = true;
+            }
+        }
+        return view('stamp', compact('rest'));
+
     }
     public function startRest(Request $request)
     {
-        
-        $attendance = Auth::user()->attendance;;
+        $user = Auth::user();
+        $today = Carbon::now()->format('Y-m-d');
+
+        $attendance = $user->attendance()->whereDate('created_at', $today)->first();
         $rest = new Rest();
         $rest->start_rest = now();
         $rest->attendance_id = $attendance->id;
