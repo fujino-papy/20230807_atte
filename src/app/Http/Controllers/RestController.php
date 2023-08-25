@@ -30,9 +30,12 @@ class RestController extends Controller
             } elseif ($attendance->start_rest !== null && $attendance->end_rest === null) {
                 $rest['endActive'] = true;
             }
+            } else {
+        // 勤務情報がない場合、ボタンを非アクティブにする
+        $rest['startActive'] = false;
+        $rest['endActive'] = false;
         }
         return view('stamp', compact('rest'));
-
     }
     public function startRest(Request $request)
     {
@@ -59,9 +62,11 @@ class RestController extends Controller
     {
         $end_rest = Rest::whereNull('end_rest')->get();
 
-        foreach ($end_rest as $end_rest)
-            $end_rest->end_rest = now();
-        $end_rest->save();
+        foreach ($end_rest as $rest) { // ここで変数名を $rest に修正
+        $rest->end_rest = now();
+        $rest->save();
+    }
+
 
         $this->markUserRestEntryAdded($end_rest, 'end_rest');
 

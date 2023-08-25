@@ -10,34 +10,34 @@ use Illuminate\Support\Facades\Session;
 
 class StampController extends Controller
 {
-    public function home()
-    {
-        $user = Auth::user();
+        public function home()
+        {
+            $user = Auth::user();
 
-        // 今日のエントリーを追加したかどうかをチェック
-        $attendance = Attendance::where('user_id', $user->id)
-            ->where('date', now()->toDateString())
-            ->whereNotNull('start_work')
-            ->first();
+            // 今日のエントリーを追加したかどうかをチェック
+            $attendance = Attendance::where('user_id', $user->id)
+                ->where('date', now()->toDateString())
+                ->whereNotNull('start_work')
+                ->first();
 
-        if ($attendance && is_null($attendance->end_work)) {
-            $startWorkData = $attendance->start_work;
-            $endWorkData = null; // 'end_work' カラムにデータがない場合は明示的に null を設定
-        } else {
-            $startWorkData = null;
-            $endWorkData = null;
+            if ($attendance && is_null($attendance->end_work)) {
+                $startWorkData = $attendance->start_work;
+                $endWorkData = null; // 'end_work' カラムにデータがない場合は明示的に null を設定
+            } else {
+                $startWorkData = null;
+                $endWorkData = null;
+            }
+            // 勤務終了したかどうかをチェック
+            $hasEndWork = Attendance::where('user_id', $user->id)
+                ->where('date', now()->toDateString())
+                ->whereNotNull('end_work')
+                ->exists();
+
+            // 勤務終了したら休憩ボタンを無効にする
+            $disableRestButtons = $hasEndWork;
+
+            return view('stamp', compact('attendance' ));
         }
-        // 勤務終了したかどうかをチェック
-        $hasEndWork = Attendance::where('user_id', $user->id)
-            ->where('date', now()->toDateString())
-            ->whereNotNull('end_work')
-            ->exists();
-
-        // 勤務終了したら休憩ボタンを無効にする
-        $disableRestButtons = $hasEndWork;
-
-        return view('stamp', compact('attendance' ));
-    }
 
 
     public function startWork(Request $request)

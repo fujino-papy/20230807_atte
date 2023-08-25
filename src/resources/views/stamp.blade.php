@@ -45,39 +45,23 @@
             <div class="form">
                 <form class="stamp" method="post" action="/stamp/start">
                     @csrf
-                    @if ($attendance ?? '' === null)
-                    <button class="btn btn-primary entry-btn" type="submit" >勤務開始</button>
-                    @else
-                    <button class="btn btn-primary entry-btn-disabled" type="submit" disabled>勤務開始</button>
-                    @endif
+                    <button class="btn btn-primary entry-btn" type="submit" @if ($attendance !== null) disabled @endif>勤務開始</button>
                 </form>
 
                 <form class="stamp" method="post" action="/stamp/end">
                     @csrf
-                    @if ($attendance ?? '' && is_null($attendance ?? ''->end_work))
-                        <button class="end-work" type="submit" >勤務終了</button>
-                    @else
-                        <button class="end-work" type="submit" disabled>勤務終了</button>
-                    @endif
+                        <button class="end-work" type="submit"  @if ($attendance && is_null($attendance->end_work))@else disabled @endif >勤務終了</button>
                 </form>
 
                 <form class="stamp" method="post" action="/rest/start">
                 @csrf
-                @if ($rest ?? '')
-                    <button class="rest-start" type="submit" >休憩開始</button>
-                @else
-                    <button class="rest-start" type="submit"disabled>休憩開始</button>
-                @endif
+                <button class="rest-start" type="submit" @if (!$rest['startActive']) disabled @endif>休憩開始</button>
                 </form>
 
                 <form class="stamp" method="post" action="/rest/end">
                 @csrf
-                @if ($rest ?? '')
-                    <button class="rest-end" type="submit"  >休憩終了</button>
-                @else
-                    <button class="rest-end" type="submit" disabled>休憩終了</button>
-                @endif
-            </form>
+                <button class="rest-end" type="submit" @if ($rest['startActive'] && !$rest['endActive']) disabled @endif>休憩終了</button>
+                </form>
             </div>
         </main>
         <footer>
