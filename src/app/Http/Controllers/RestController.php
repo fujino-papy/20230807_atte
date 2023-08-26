@@ -23,11 +23,11 @@ class RestController extends Controller
             'startActive' => false,
             'endActive' => false,
         ];
-
         if ($attendance) {
             if ($attendance->start_rest === null && $attendance->end_rest === null) {
                 $rest['startActive'] = true;
-            } elseif ($attendance->start_rest !== null && $attendance->end_rest === null) {
+            } elseif ($attendance->start_rest !== null && $attendance->end_rest === null)
+            {
                 $rest['endActive'] = true;
             }
             } else {
@@ -35,7 +35,8 @@ class RestController extends Controller
         $rest['startActive'] = false;
         $rest['endActive'] = false;
         }
-        return view('stamp', compact('rest'));
+        dd($rest);
+        return view('stamp', compact("rest"));
     }
     public function startRest(Request $request)
     {
