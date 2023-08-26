@@ -36,7 +36,7 @@ class StampController extends Controller
             // 勤務終了したら休憩ボタンを無効にする
             $disableRestButtons = $hasEndWork;
 
-            return view('stamp', compact('attendance' ));
+        return view('stamp',compact('attendance'));
         }
 
 

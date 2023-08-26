@@ -35,8 +35,7 @@ class RestController extends Controller
         $rest['startActive'] = false;
         $rest['endActive'] = false;
         }
-        dd($rest);
-        return view('stamp', compact("rest"));
+        return view('stamp', compact('rest' ) ,compact('attendance'));
     }
     public function startRest(Request $request)
     {
