@@ -26,16 +26,22 @@ class RestController extends Controller
         if ($attendance) {
             if ($attendance->start_rest === null && $attendance->end_rest === null) {
                 $rest['startActive'] = true;
-            } elseif ($attendance->start_rest !== null && $attendance->end_rest === null)
-            {
+            }
+            if ($attendance->start_rest !== null && $attendance->end_rest === null) {
                 $rest['endActive'] = true;
             }
-            } else {
-        // 勤務情報がない場合、ボタンを非アクティブにする
-        $rest['startActive'] = false;
-        $rest['endActive'] = false;
+        } else {
+            // 勤務情報がない場合、ボタンを非アクティブにする;
+            $rest['startActive'] = false;
+            $rest['endActive'] = false;
         }
-        return view('stamp', compact('rest' ) ,compact('attendance'));
+
+        $hasEndWork = Attendance::where('user_id', $user->id)
+            ->where('date', now()->toDateString())
+            ->whereNotNull('end_work')
+            ->exists();
+        dd($rest);
+        return view('stamp',compact('attendance' , 'rest','hasEndWork'));
     }
     public function startRest(Request $request)
     {
