@@ -38,9 +38,28 @@
             </ul>
         </header>
         <main>
+            <div class="list-table">
+            <table class="list-table_inner" style="width: 100%; max-width: 0 auto;">
+            <tr class="list-table_info">
+                <th scope ="col">名前</th>
+                <th scope ="col">勤務開始</th>
+                <th scope ="col">勤務終了</th>
+                <th scope ="col">休憩時間</th>
+                <th scope ="col">勤務時間</th>
+            </tr>
+            @foreach($attendanceWithWorktime as $entry)
+            <tr class="list-table_data">
+                <td>{{$entry->user_id}}</td>
+                <td>{{$entry->start_work}}</td>
+                <td>{{$entry->end_work}}</td>
+                <td>{{$entry->resttime}}</td>
+                <td>{{$entry->worktime}}</td>
+            </tr>
+            @endforeach
+            </table>
+            </div>
 
-
-            
+        
         </main>
         <footer>
         <p class="footer-logo">Atte,inc.</p>

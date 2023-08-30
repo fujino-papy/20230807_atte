@@ -37,35 +37,38 @@ class StampController extends Controller
             // 勤務終了したら休憩ボタンを無効にする
             $disableRestButtons = $hasEndWork;
             //休憩管理部分
+
+
             $user = Auth::user();
             $today = Carbon::now()->format('Y-m-d');
 
-            $attendance = $user->attendance()->whereDate('created_at', $today)->first();
+            $attendance = $user->attendance()->whereDate('date', $today)->first();
 
             $rest = [
-            'startActive' => false,
-            'endActive' => false,
+                'startActive' => false,
+                'endActive' => false,
             ];
+
             if ($attendance) {
-            if ($attendance->start_rest === null && $attendance->end_rest === null) {
-                $rest['startActive'] = true;
-            } elseif ($attendance->start_rest !== null && $attendance->end_rest === null) {
-                $rest['endActive'] = true;
-            }
+                if ($attendance->rests->isEmpty()) {
+                    $rest['startActive'] = true;
+                } else {
+                    $lastRest = $attendance->rests->last();
+                    if ($lastRest->start_rest !== null && $lastRest->end_rest === null) {
+                        $rest['endActive'] = true;
+                    } elseif ($lastRest->start_rest !== null && $lastRest->end_rest !== null) {
+                        $rest['startActive'] = true;
+                    }
+                }
             } else {
-            // 勤務情報がない場合、ボタンを非アクティブにする
-            $rest['startActive'] = false;
-            $rest['endActive'] = false;
+                $rest['startActive'] = false;
+                $rest['endActive'] = false;
             }
 
-            $hasEndWork = Attendance::where('user_id', $user->id)
-            ->where('date', now()->toDateString())
-            ->whereNotNull('end_work')
-            ->exists();
-
-        // 勤務終了したら休憩ボタンを無効にする
-        $disableRestButtons = $hasEndWork;
-
+                $hasEndWork = Attendance::where('user_id', $user->id)
+                    ->where('date', now()->toDateString())
+                    ->whereNotNull('end_work')
+                    ->exists();
         return view('stamp',compact('attendance' , 'rest','hasEndWork'));
         }
 
@@ -114,7 +117,40 @@ class StampController extends Controller
 
     public function list()
     {
-        return view('list');
+        $attendance=Attendance::Paginate(5);
+        $attendanceWithWorktime = [];
+
+    foreach ($attendance as $entry) {
+        if ($entry->start_work && $entry->end_work) {
+            $startWorkTimestamp = strtotime($entry->start_work);
+            $endWorkTimestamp = strtotime($entry->end_work);
+            $workDurationInSeconds = $endWorkTimestamp - $startWorkTimestamp;
+            $hours = floor($workDurationInSeconds / 3600);
+            $minutes = floor(($workDurationInSeconds % 3600) / 60);
+            $worktime = $hours . '時間' . $minutes . '分';
+        } else {
+            $worktime = 'Work duration not available';
+        }
+
+        $entry->worktime = $worktime;
+        $attendanceWithWorktime[] = $entry;
+
+      // 休憩時間を計算して追加
+        $totalRestTime = Rest::where('attendance_id', $entry->id)
+            ->whereNotNull('end_rest')
+            ->sum(function ($restRecord) {
+                return strtotime($restRecord->end_rest) - strtotime($restRecord->start_rest);
+            });
+
+        $restTimeInMinutes = round($totalRestTime / 60);
+        $restTime = $restTimeInMinutes . '分';
+
+        $entry->worktime = $worktime;
+        $entry->resttime = $restTime;
+        $attendanceWithWorktime[] = $entry;
+    }
+
+        return view('list' , compact('attendance','attendanceWithWorktime'));
     }
 }
 

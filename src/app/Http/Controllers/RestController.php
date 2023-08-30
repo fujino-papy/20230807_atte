@@ -17,21 +17,25 @@ class RestController extends Controller
         $user = Auth::user();
         $today = Carbon::now()->format('Y-m-d');
 
-        $attendance = $user->attendance()->whereDate('created_at', $today)->first();
+        $attendance = $user->attendance()->whereDate('date', $today)->first();
 
         $rest = [
             'startActive' => false,
             'endActive' => false,
         ];
+
         if ($attendance) {
-            if ($attendance->start_rest === null && $attendance->end_rest === null) {
+            if ($attendance->rests->isEmpty()) {
                 $rest['startActive'] = true;
-            }
-            if ($attendance->start_rest !== null && $attendance->end_rest === null) {
-                $rest['endActive'] = true;
+            } else {
+                $lastRest = $attendance->rests->last();
+                if ($lastRest->start_rest !== null && $lastRest->end_rest === null) {
+                    $rest['endActive'] = true;
+                } elseif ($lastRest->start_rest !== null && $lastRest->end_rest !== null) {
+                    $rest['startActive'] = true;
+                }
             }
         } else {
-            // 勤務情報がない場合、ボタンを非アクティブにする;
             $rest['startActive'] = false;
             $rest['endActive'] = false;
         }
@@ -40,8 +44,9 @@ class RestController extends Controller
             ->where('date', now()->toDateString())
             ->whereNotNull('end_work')
             ->exists();
-        dd($rest);
-        return view('stamp',compact('attendance' , 'rest','hasEndWork'));
+        
+
+        return view('stamp', compact('attendance', 'rest', 'hasEndWork'));
     }
     public function startRest(Request $request)
     {

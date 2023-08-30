@@ -23,7 +23,7 @@
                         <a href="/stamp/list">日付一覧</a>
                     </form>
                 </li>
-                <li class="header-li">
+                <li class="header-li">  
                     <div class="mt-3 space-y-1">
                 <!-- Authentication -->
                 <form method="POST" action="{{ route('logout') }}">
@@ -55,12 +55,12 @@
 
                 <form class="stamp" method="post" action="/rest/start">
                 @csrf
-                <button class="rest-start" type="submit" @if($rest['startActive'] || $hasEndWork || !$attendance) disabled @endif>休憩開始</button>
+                <button class="rest-start" type="submit" @if(!$rest['startActive'] || $hasEndWork || !$attendance) disabled @endif>休憩開始</button>
                 </form>
 
                 <form class="stamp" method="post" action="/rest/end">
                 @csrf
-                <button class="rest-end" type="submit" @if ($rest['endActive']|| $hasEndWork || !$attendance) disabled @endif>休憩終了</button>
+                <button class="rest-end" type="submit"  @if (!$rest['endActive'] || $hasEndWork || !$attendance || $rest['startActive']) disabled @endif>休憩終了</button>
                 </form>
             </div>
         </main>
