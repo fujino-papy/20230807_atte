@@ -50,7 +50,8 @@ Route::get('/dashboard', function () {
     Route::post('/stamp/start', [StampController::class, 'startWork'])->name('stamp.start');
     Route::post('/stamp/end', [StampController::class, 'endWork'])->name('stamp.end');
     Route::get('/stamp/list', [StampController::class, 'list'])->name('list');
-
+    Route::get('/stamp/next', [StampController::class, 'nextDay'])->name('next');
+    Route::get('/stamp/prev', [StampController::class, 'previousDay'])->name('prev');
     // RestController ルーティング
     Route::get('/rest/home', [RestController::class, 'home'])->name('rest.home');
     Route::post('/rest/start', [RestController::class, 'startRest'])->name('rest.start');

@@ -115,11 +115,26 @@ class StampController extends Controller
         return redirect()->route('stamp.home');
     }
 
-    public function list()
+    public function list($date = null)
     {
-        $attendance=Attendance::Paginate(5);
+        $date = $date ?? now()->format('Y-m-d');
+
+        $attendance = Attendance::with('user')
+            ->whereDate('date', $date)
+            ->paginate(5);
+
         $attendanceWithWorktime = [];
 
+        foreach ($attendance as $entry) {
+            // Users テーブルから name カラムのデータを取得
+            $userName = $entry->user->name;
+            // $userName を使って必要な処理を行う
+            $entry->user_id = $userName;
+        }
+
+
+
+        //勤務時間を計算して追加
     foreach ($attendance as $entry) {
         if ($entry->start_work && $entry->end_work) {
             $startWorkTimestamp = strtotime($entry->start_work);
@@ -129,28 +144,108 @@ class StampController extends Controller
             $minutes = floor(($workDurationInSeconds % 3600) / 60);
             $worktime = $hours . '時間' . $minutes . '分';
         } else {
-            $worktime = 'Work duration not available';
+            $worktime = '勤務終了が記録されていません';
         }
 
         $entry->worktime = $worktime;
         $attendanceWithWorktime[] = $entry;
 
       // 休憩時間を計算して追加
-        $totalRestTime = Rest::where('attendance_id', $entry->id)
-            ->whereNotNull('end_rest')
-            ->sum(function ($restRecord) {
-                return strtotime($restRecord->end_rest) - strtotime($restRecord->start_rest);
-            });
+        $rests = Rest::where('attendance_id', $entry->id)
+            ->whereNotNull('end_rest')->select('start_rest','end_rest','attendance_id')->get();
 
-        $restTimeInMinutes = round($totalRestTime / 60);
-        $restTime = $restTimeInMinutes . '分';
+            $totalRestTimeInSeconds = 0;
+
+            foreach ($rests as $rest) {
+                $startRestTimestamp = strtotime($rest->start_rest);
+                $endRestTimestamp = strtotime($rest->end_rest);
+                $restDurationInSeconds = $endRestTimestamp - $startRestTimestamp;
+                $totalRestTimeInSeconds += $restDurationInSeconds;
+            }
+
+            $totalRestTimeInMinutes = round($totalRestTimeInSeconds / 60);
+            $restTime = $totalRestTimeInMinutes . '分';
 
         $entry->worktime = $worktime;
         $entry->resttime = $restTime;
-        $attendanceWithWorktime[] = $entry;
+    }
+        return view('list' , compact('attendance','attendanceWithWorktime','date'));
     }
 
-        return view('list' , compact('attendance','attendanceWithWorktime'));
-    }
-}
+    private function getAttendanceByDate($operation)
+    {
+        $date = now()->$operation('1 day')->format('Y-m-d');
 
+        return Attendance::with('user')
+            ->whereDate('date', $date)
+            ->paginate(5);
+    }
+
+    public function nextDay(Request $request)
+    {
+        $date = $request->input('date');
+        $nextDate = Carbon::parse($date)->format('Y-m-d');
+        return $this->list($nextDate);
+    }
+    public function previousDay(Request $request)
+    {
+        $date = $request->input('date');
+        $prevDate = Carbon::parse($date)->format('Y-m-d');
+        return $this->list($prevDate);
+    }
+    private function changeDay($operation)
+    {
+        $attendanceWithWorktime = [];
+
+        foreach ($this->getAttendanceByDate($operation) as $entry) {
+            // Users テーブルから name カラムのデータを取得
+            $userName = $entry->user->name;
+            // $userName を使って必要な処理を行う
+            $entry->user_id = $userName;
+
+            // 日付の加算または減算を行う
+        $newDate = date('Y-m-d', strtotime($entry->date . " $operation 1 day"));
+
+
+            // 勤務時間を計算して追加
+            if ($entry->start_work && $entry->end_work) {
+                $startWorkTimestamp = strtotime($entry->start_work);
+                $endWorkTimestamp = strtotime($entry->end_work);
+                $workDurationInSeconds = $endWorkTimestamp - $startWorkTimestamp;
+                $hours = floor($workDurationInSeconds / 3600);
+                $minutes = floor(($workDurationInSeconds % 3600) / 60);
+                $worktime = $hours . '時間' . $minutes . '分';
+            } else {
+                $worktime = '勤務終了が記録されていません';
+            }
+
+            // 休憩時間を計算して追加
+            $rests = Rest::where('attendance_id', $entry->id)
+                ->whereNotNull('end_rest')
+                ->select('start_rest', 'end_rest', 'attendance_id')
+                ->get();
+
+            $totalRestTimeInSeconds = 0;
+
+            foreach ($rests as $rest) {
+                $startRestTimestamp = strtotime($rest->start_rest);
+                $endRestTimestamp = strtotime($rest->end_rest);
+                $restDurationInSeconds = $endRestTimestamp - $startRestTimestamp;
+                $totalRestTimeInSeconds += $restDurationInSeconds;
+            }
+
+            $totalRestTimeInMinutes = round($totalRestTimeInSeconds / 60);
+            $restTime = $totalRestTimeInMinutes . '分';
+
+            $entry->worktime = $worktime;
+            $entry->resttime = $restTime;
+
+            $attendanceWithWorktime[] = $entry;
+        }
+
+        $attendance = Attendance::with('user')
+            ->whereDate('date', $newDate)
+            ->paginate(5);
+        return view('list', compact('attendance', 'attendanceWithWorktime','date'));
+    }
+    }

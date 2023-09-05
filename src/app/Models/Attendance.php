@@ -29,4 +29,8 @@ class Attendance extends Model
     {
         return $this->hasOne(user::class);
     }
+    public function user()
+{
+    return $this->belongsTo(User::class, 'user_id');
+}
 }

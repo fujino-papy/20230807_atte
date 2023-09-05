@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="{{ asset('css/sanitize.css') }}" />
-        <link rel="stylesheet" href="{{ asset('css/stamp.css') }}" />
+        <link rel="stylesheet" href="{{ asset('css/list.css') }}" />
         <title>Laravel</title>
     </head>
     <body class="antialiased">
@@ -38,6 +38,19 @@
             </ul>
         </header>
         <main>
+            <div class='datedisplay'>
+                    <form method="GET" action="/stamp/prev" >
+                        @csrf
+                        <input type="hidden" name="date" value="{{ date('Y-m-d', strtotime($date . ' -1 day')) }}">
+                        <button class='datebutton' type="submit" class="btn"><</button>
+                    </form>
+                    <h1 class="date">{{ date('Y年m月d日', strtotime($date)) }}</h1>
+                    <form method="GET" action="/stamp/next" >
+                    @csrf
+                        <input type="hidden" name="date" value="{{ date('Y-m-d', strtotime($date . ' +1 day')) }}">
+                        <button class='datebutton' type="submit" class="btn">></button>
+                    </form>
+            </div>
             <div class="list-table">
             <table class="list-table_inner" style="width: 100%; max-width: 0 auto;">
             <tr class="list-table_info">
@@ -57,9 +70,8 @@
             </tr>
             @endforeach
             </table>
+            {{ $attendance->links() }}
             </div>
-
-        
         </main>
         <footer>
         <p class="footer-logo">Atte,inc.</p>
