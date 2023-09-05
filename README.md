@@ -79,5 +79,4 @@ https://github.com/fujino-papy/20230807_atte.git
 ブラウザテスト
 Google chrome・Microsoft Edge・firefox
 
-上記３つのブラウザで正常動作を確認しております。# 20230906_atte
-# 20230906_atte
+上記３つのブラウザで正常動作を確認しております。
