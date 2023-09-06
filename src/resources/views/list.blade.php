@@ -70,7 +70,7 @@
             </tr>
             @endforeach
             </table>
-            {{ $attendance->links() }}
+            {{ $attendance->appends(['date' => $date])->links() }}
             </div>
         </main>
         <footer>

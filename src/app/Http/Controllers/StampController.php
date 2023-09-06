@@ -243,9 +243,6 @@ class StampController extends Controller
             $attendanceWithWorktime[] = $entry;
         }
 
-        $attendance = Attendance::with('user')
-            ->whereDate('date', $newDate)
-            ->paginate(5);
         return view('list', compact('attendance', 'attendanceWithWorktime','date'));
     }
     }
